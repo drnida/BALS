@@ -1,0 +1,31 @@
+input[type=range][orient=vertical]
+{
+    writing-mode: bt-lr; /* IE */
+    -webkit-appearance: slider-vertical; /* WebKit */
+    width: 8px;
+    height: 175px;
+    padding: 0 5px;
+  
+    min=0;
+    max=120;   
+}
+
+.step {display: inline-block;  
+        width: 3%;
+      }
+
+/* .step {display: inline-block;  zoom: 1; vertical-align: top; font-size: 12px;} */
+
+/*
+#step_1 {width: 5%; }
+#step_2 {width: 5%; }
+#step_3 {width: 5%; }
+#step_4 {width: 5%; }
+#step_5 {width: 5%; }
+#step_6 {width: 5%; }
+#step_7 {width: 5%; }*/
+
+
+/* #steps {height: 50%; width:100%; font-size: 0;} */
+
+
