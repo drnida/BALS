@@ -37,7 +37,7 @@ function addStep(stepNum){
   slider.value = notes[stepNum];
   slider.setAttribute("stepnumber", stepNum);
   slider.setAttribute("orient", "vertical");
-  slider.setAttribute("onkeyup", "swichInput(this.id, event, value)");
+  slider.setAttribute("onkeydown", "swichInput(this.id, event, value)");
   slider.setAttribute("oninput", "updateNote(this.id, this.value)");
   step.appendChild(slider);
 
@@ -100,15 +100,17 @@ function updateNote(id, val){
 function swichInput(id, event, value){
   var stepNum = Number(id.split("_")[1]);
   if (event.keyCode === 37){
-    var oldSlider = document.getElementById("note_"+(stepNum));
-    updateNote(oldSlider.id, String(Number(oldSlider.value)-1));
+    event.preventDefault();
+    // var oldSlider = document.getElementById("note_"+(stepNum));
+    // updateNote(oldSlider.id, String(Number(oldSlider.value)-1));
     var nextSlider = document.getElementById("note_"+(stepNum-1));
     nextSlider.focus();
   }
 
-    if (event.keyCode === 39){
-    var oldSlider = document.getElementById("note_"+(stepNum));
-    updateNote(oldSlider.id, String(Number(oldSlider.value)+1));
+  if (event.keyCode === 39){
+    event.preventDefault();
+    // var oldSlider = document.getElementById("note_"+(stepNum));
+    // updateNote(oldSlider.id, String(Number(oldSlider.value)+1));
     var nextSlider = document.getElementById("note_"+(stepNum+1));
     nextSlider.focus();
   }
@@ -175,7 +177,7 @@ function playPattern(timePerStep){
       sendNote(notes[step], 0, timePerStep, midi, 1324057213, step );
     }
   
-    if (step === notes.length - 1){
+    if (step >= (numSteps - 1)){
       step = 0;
     }
     else{ ++step; 
