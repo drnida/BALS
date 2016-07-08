@@ -1,26 +1,13 @@
 
 var midi = null;  
-var stepsPerMin = 60//document.getElementById("tempo").value;
-var timePerStep = 60000.0/stepsPerMin;
+var stepsPerMin = 60.0
+var timePerStep = (60000.0/stepsPerMin) * .5;
 var kill = null;
 var notes = ["60", "78", "50", "34", "43", "53", "67", "76", "60", "32", "45", "60", "70", "79", "72", "60", "36", "40", "47", "69", "72", "71", "48", "40", "20", "71", "50", "43", "37", "38", "50", "70"];
 var toggledSteps = [false, true, false, true, true, true, true, true, false, true, true, true, true, true, true, false, true, true, true, true, true, true, true, true, false, true, true, true, true, true, true, true];
 var step = 0;
-var numSteps = 32;
-
-
-// for (var i = 0; i < numSteps; ++i){
-//   notes.push(60);
-//   toggledSteps.push(true);
-// }
-
-console.log(stepsPerMin);
-console.log(timePerStep);
-console.log(notes.length);
-
-
-
-
+var maxSteps = 32;
+var numSteps = maxSteps;
 
 
 
@@ -37,7 +24,7 @@ function addStep(stepNum){
   slider.value = notes[stepNum];
   slider.setAttribute("stepnumber", stepNum);
   slider.setAttribute("orient", "vertical");
-  slider.setAttribute("onkeydown", "swichInput(this.id, event, value)");
+  slider.setAttribute("onkeydown", "swichInput(this.id, event)");
   slider.setAttribute("oninput", "updateNote(this.id, this.value)");
   step.appendChild(slider);
 
@@ -97,25 +84,64 @@ function updateNote(id, val){
   
 }
 
-function swichInput(id, event, value){
+function swichInput(id, event){
   var stepNum = Number(id.split("_")[1]);
   if (event.keyCode === 37){
     event.preventDefault();
-    // var oldSlider = document.getElementById("note_"+(stepNum));
-    // updateNote(oldSlider.id, String(Number(oldSlider.value)-1));
     var nextSlider = document.getElementById("note_"+(stepNum-1));
     nextSlider.focus();
   }
 
   if (event.keyCode === 39){
     event.preventDefault();
-    // var oldSlider = document.getElementById("note_"+(stepNum));
-    // updateNote(oldSlider.id, String(Number(oldSlider.value)+1));
     var nextSlider = document.getElementById("note_"+(stepNum+1));
     nextSlider.focus();
   }
 
 }
+
+
+function setNumSteps(event, val){
+  console.log("key" , val);
+  if (event.keyCode == 13){
+    if (Number(val) > 0 && Number(val) <= maxSteps){
+        numSteps = Number(val);
+      console.log("set", numSteps);
+    }
+  }
+  
+}
+
+
+function changeTempo(value){
+  stepsPerMin = Number(value);
+  timePerStep = 60000/stepsPerMin;
+  console.log("tempo change", timePerStep);
+}
+
+
+var sent = 0;
+function beepOn() {
+  var noteOnMessage = [0x90, 50, 0x7f];    
+  var output = midi.outputs.get(1324057213);
+  if (sent == 0){
+    output.send( noteOnMessage );  
+    sent = 1;
+    console.log("beep");
+
+  }
+
+}
+
+function beepOff() {
+  var output = midi.outputs.get(1324057213);
+  output.send( [0x80, 50, 0x40] );
+  sent = 0;
+    console.log("beep off");   
+
+}
+
+
 
 
 
@@ -124,7 +150,16 @@ window.onload = function() {
     addStep(i);
     var stepOn = document.getElementById("stepOn_" + i);
     stepOn.checked = toggledSteps[i];
+
+
   }
+
+  var startTempo = document.getElementById("tempo");
+  stepsPerMin = startTempo.value;
+  console.log(startTempo.value);
+  console.log(stepsPerMin);
+  console.log(timePerStep);
+  console.log(notes.length);
 
 };
 
@@ -158,7 +193,11 @@ function sendNote(note, start, duration, midiAccess, portID, step){
   output.send( [0x80, note, 0x40], window.performance.now() + start + duration );   
 }
 
-function playPattern(timePerStep){
+
+
+
+
+function playPattern(){
   function foo(){
     if (step - 1 < 0){
       var blinker = document.getElementById("blinker_" + (numSteps - 1));
@@ -181,9 +220,10 @@ function playPattern(timePerStep){
       step = 0;
     }
     else{ ++step; 
-          stepsPerMin = document.getElementById("tempo").value;
-          timePerStep = 60000/stepsPerMin;
+          // stepsPerMin = document.getElementById("tempo").value;
+          // timePerStep = 60000/stepsPerMin;
            clearInterval(kill);
+           console.log(timePerStep)
            kill = setInterval(foo, timePerStep);
          
         } 

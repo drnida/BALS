@@ -15,20 +15,30 @@
    
 <p id="on"></p>
 
-<button onclick="playPattern(timePerStep)">ROCK OUT</button> 
+<button onclick="playPattern()">ROCK OUT</button> 
   
 <p id="off"></p>
 
 <button onclick="killIt()">Shut up</button>
 
-<p id="temps"></p>
+<p id="Number Of Steps"></p>
+
+<input type="number" name="" id="numSteps" min="0" max="32" value="32" onkeyup="setNumSteps(event, this.value)">
+
+<p id="tempo"></p>
 
 <input type="range"  id="tempo" value="240"
-   min="60" max="240"    >
+   min="30" max="270"  oninput="changeTempo(this.value)"  >
 
   
 <div id="steps">  </div>  
 
+
+
+
+<p id="beep"></p>
+
+<button onkeypress="beepOn()" onkeyup="beepOff()">beeper</button>
 
 
 </body>
