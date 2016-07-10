@@ -8,7 +8,7 @@ var toggledSteps = [false, true, false, true, true, true, true, true, false, tru
 var step = 0;
 var maxSteps = 32;
 var numSteps = maxSteps;
-
+var kill = false;
 
 
 
@@ -121,25 +121,45 @@ function changeTempo(value){
 
 
 var sent = 0;
-function beepOn() {
-  var noteOnMessage = [0x90, 50, 0x7f];    
+function beepOn(note, duration) {
+  var noteOnMessage = [0x90, note, 0x7f];    
   var output = midi.outputs.get(1324057213);
-  if (sent == 0){
-    output.send( noteOnMessage );  
-    sent = 1;
-    console.log("beep");
-
+  if(kill){
+    kill = false;
+    return;
   }
+  
+  if (toggledSteps[step%numSteps] === true){
+    output.send( noteOnMessage );  
+  }
+  sent = 1;
+  console.log("beep");
+  var blinker = document.getElementById("blinker_" + step%numSteps);
+  blinker.checked = true;
+  setTimeout(beepOff, duration, note);
+
+  
 
 }
 
-function beepOff() {
+function beepOff(note) {
   var output = midi.outputs.get(1324057213);
-  output.send( [0x80, 50, 0x40] );
-  sent = 0;
-    console.log("beep off");   
-
+  output.send( [0x80, note, 0x40] );
+  console.log("beep off");   
+  var blinker = document.getElementById("blinker_" + step%numSteps);
+  blinker.checked = false;
+  ++step;
+  beepOn(notes[step%numSteps], timePerStep);
 }
+
+
+function playPattern(){
+    console.log("beeps started");
+    beepOn(notes[step], timePerStep);
+  
+}
+
+
 
 
 
@@ -197,41 +217,42 @@ function sendNote(note, start, duration, midiAccess, portID, step){
 
 
 
-function playPattern(){
-  function foo(){
-    if (step - 1 < 0){
-      var blinker = document.getElementById("blinker_" + (numSteps - 1));
-      blinker.checked = false;
-    }
-    else {
-      var blinker = document.getElementById("blinker_" + (step - 1));
-      blinker.checked = false;
-    }
+// function playPattern(){
+//   function foo(){
+//     if (step - 1 < 0){ //is the previous step  off the chart reset the last note
+//       var blinker = document.getElementById("blinker_" + (numSteps - 1));
+//       blinker.checked = false;
+//     }
+//     else {
+//       var blinker = document.getElementById("blinker_" + (step - 1));
+//       blinker.checked = false
+//     }
 
 
-    var blinker = document.getElementById("blinker_" + step);
-    blinker.checked = true;
+//     var blinker = document.getElementById("blinker_" + step);
+//     blinker.checked = true;
 
-    if (toggledSteps[step] === true){
-      sendNote(notes[step], 0, timePerStep, midi, 1324057213, step );
-    }
+//     if (toggledSteps[step] === true){
+//       sendNote(notes[step], 0, timePerStep, midi, 1324057213, step );
+//     }
   
-    if (step >= (numSteps - 1)){
-      step = 0;
-    }
-    else{ ++step; 
-          // stepsPerMin = document.getElementById("tempo").value;
-          // timePerStep = 60000/stepsPerMin;
-           clearInterval(kill);
-           console.log(timePerStep)
-           kill = setInterval(foo, timePerStep);
+//     if (step >= (numSteps - 1)){
+//       step = 0;
+//     }
+//     else{ ++step; 
+//           // stepsPerMin = document.getElementById("tempo").value;
+//           // timePerStep = 60000/stepsPerMin;
+//            clearInterval(kill);
+//            console.log('rotate', timePerStep)
+//            kill = setInterval(foo, timePerStep);
          
-        } 
-  }
-  kill = setInterval(foo, timePerStep);
-}
+//         } 
+//   }
+//   kill = setInterval(foo, timePerStep);
+// }
 
 function killIt(){
+  kill = true;
   console.log(kill);
   clearInterval(kill);
   
