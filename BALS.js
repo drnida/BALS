@@ -120,23 +120,17 @@ function changeTempo(value){
 }
 
 
-var sent = 0;
 function beepOn(note, duration) {
   var noteOnMessage = [0x90, note, 0x7f];    
   var output = midi.outputs.get(1324057213);
-  if(kill){
-    kill = false;
-    return;
-  }
-  
+
   if (toggledSteps[step%numSteps] === true){
     output.send( noteOnMessage );  
   }
-  sent = 1;
-  console.log("beep");
+
   var blinker = document.getElementById("blinker_" + step%numSteps);
   blinker.checked = true;
-  setTimeout(beepOff, duration, note);
+  setTimeout(beepOff, duration*.97 , note);
 
   
 
@@ -145,18 +139,23 @@ function beepOn(note, duration) {
 function beepOff(note) {
   var output = midi.outputs.get(1324057213);
   output.send( [0x80, note, 0x40] );
-  console.log("beep off");   
   var blinker = document.getElementById("blinker_" + step%numSteps);
   blinker.checked = false;
   ++step;
-  beepOn(notes[step%numSteps], timePerStep);
 }
 
 
 function playPattern(){
+  function foo(){
     console.log("beeps started");
-    beepOn(notes[step], timePerStep);
-  
+    beepOn(notes[step%numSteps], timePerStep); 
+    playPattern();
+  }
+  if(kill){
+    kill = false;
+    return;
+  }
+  setTimeout(foo, timePerStep);
 }
 
 
